@@ -22,5 +22,5 @@ docker exec -it sio_php bash -c 'symfony check:req'
 docker exec -it sio_php bash -c 'composer require doctrine'
 
 # Create DB && show DB
-docker-compose run --rm sio_php bash -c 'php bin/console doctrine:database:create'
+docker-compose -f docker/docker-compose.yml run --rm sio_php bash -c 'php bin/console doctrine:database:create'
 docker exec -it sio_db sh -c 'mysql -uroot -proot_pass -e "SHOW DATABASES;"'
