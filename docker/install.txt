@@ -1,11 +1,26 @@
+# .env
 cp docker/.env-dist docker/.env
 
+
+
+# build && run docker
 make build -C docker
 make up -C docker
 
+
+
+# Install Symfony
 docker exec -it sio_php bash -c 'composer create-project symfony/skeleton .'
+
+# Generate gitignore app
+https://www.toptal.com/developers/gitignore/api/symfony,phpstorm,phpstorm+all
+
+# Check state is ready app
 docker exec -it sio_php bash -c 'symfony check:req'
+
+# Add doctrine
 docker exec -it sio_php bash -c 'composer require doctrine'
 
-docker-compose run --rm sio_php bash -c 'php bin/console doctrine:database:create'
+# Create DB && show DB
+docker-compose -f docker/docker-compose.yml run --rm sio_php bash -c 'php bin/console doctrine:database:create'
 docker exec -it sio_db sh -c 'mysql -uroot -proot_pass -e "SHOW DATABASES;"'
