@@ -1,0 +1,11 @@
+cp docker/.env-dist docker/.env
+
+make build -C docker
+make up -C docker
+
+docker exec -it sio_php bash -c 'composer create-project symfony/skeleton .'
+docker exec -it sio_php bash -c 'symfony check:req'
+docker exec -it sio_php bash -c 'composer require doctrine'
+
+docker-compose run --rm sio_php bash -c 'php bin/console doctrine:database:create'
+docker exec -it sio_db sh -c 'mysql -uroot -proot_pass -e "SHOW DATABASES;"'
