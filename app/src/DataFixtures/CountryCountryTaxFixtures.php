@@ -19,7 +19,7 @@ class CountryCountryTaxFixtures extends Fixture
         $countryTax = new CountryTax();
         $countryTax->setCountry($country);
         $countryTax->setValue(19);
-        $countryTax->setRule('/^(DE|de)\d{9}$/');
+        $countryTax->setRule('/^(de)\d{9}$/i');
         $manager->persist($countryTax);
 
         $country = new Country();
@@ -30,7 +30,7 @@ class CountryCountryTaxFixtures extends Fixture
         $countryTax = new CountryTax();
         $countryTax->setCountry($country);
         $countryTax->setValue(22);
-        $countryTax->setRule('/^(IT|it)\d{11}$/');
+        $countryTax->setRule('/^(it)\d{11}$/i');
         $manager->persist($countryTax);
 
         $country = new Country();
@@ -41,7 +41,7 @@ class CountryCountryTaxFixtures extends Fixture
         $countryTax = new CountryTax();
         $countryTax->setCountry($country);
         $countryTax->setValue(20);
-        $countryTax->setRule('/^(FR|fr)\[A-Za-z]{2}\d{9}$/');
+        $countryTax->setRule('/^(fr)\[A-Za-z]{2}\d{9}$/i');
         $manager->persist($countryTax);
 
         $country = new Country();
@@ -52,7 +52,7 @@ class CountryCountryTaxFixtures extends Fixture
         $countryTax = new CountryTax();
         $countryTax->setCountry($country);
         $countryTax->setValue(24);
-        $countryTax->setRule('/^(GR|gr)\d{9}$/');
+        $countryTax->setRule('/^(gr)\d{9}$/i');
         $manager->persist($countryTax);
 
         $manager->flush();
