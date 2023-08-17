@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: ProductRepository::class)]
-class Product implements \JsonSerializable
+class Product
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -52,14 +52,5 @@ class Product implements \JsonSerializable
         $this->price = $price;
 
         return $this;
-    }
-
-    public function jsonSerialize(): array
-    {
-        return [
-            'id' => $this->getId(),
-            'name' => $this->getName(),
-            'price' => $this->getPrice()
-        ];
     }
 }
