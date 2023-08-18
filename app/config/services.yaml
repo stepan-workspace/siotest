@@ -16,9 +16,23 @@ services:
     App\:
         resource: '../src/'
         exclude:
+            - '../src/Service/Payment/PaymentProcessor/'
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
+
+    App\Service\Payment\Loader\PaymentLoader:
+        autowire: false
+
+    App\Service\Payment\Loader\PaymentLoaderInitializer:
+        arguments:
+            $classLoader: '@App\Service\Payment\Loader\PaymentLoader'
+
+    App\Service\Payment\Providers\PaymentBuilder:
+        arguments:
+            $payments:
+                paypal: '@App\Service\Payment\Providers\PaypalPaymentProvider'
+                stripe: '@App\Service\Payment\Providers\StripePaymentProvider'

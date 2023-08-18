@@ -14,6 +14,6 @@ class ExceptionError implements ToArrayErrorInterface
 
     public function toArray(): array
     {
-        return ['errors' => ['calculation' => $this->exception->getMessage()]];
+        return ['errors' => ['exception' => $this->exception->getMessage()]];
     }
 }
