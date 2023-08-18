@@ -6,23 +6,26 @@ use App\Repository\CountryRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: CountryRepository::class)]
-class Country
+#[ORM\UniqueConstraint(name: 'unique_code', columns: ['code'])]
+#[UniqueEntity(fields: ['code'], message: 'This code is already in database.', errorPath: 'code')]
+class Country implements \JsonSerializable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ORM\Column(length: 255)]
-    #[Assert\NotBlank(message: "Country Name cannot be blank")]
+    #[ORM\Column(length: 255, unique: true)]
+    #[Assert\NotBlank(message: 'Country Name cannot be blank')]
     #[Assert\Length(min: 3, max: 255)]
     private ?string $name = null;
 
     #[ORM\Column(length: 2)]
-    #[Assert\NotBlank(message: "Country Code cannot be blank")]
+    #[Assert\NotBlank(message: 'Country Code cannot be blank')]
     #[Assert\Length(min: 1, max: 2)]
     private ?string $code = null;
 
@@ -91,5 +94,14 @@ class Country
         }
 
         return $this;
+    }
+
+    public function jsonSerialize(): iterable
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'code' => $this->getCode()
+        ];
     }
 }

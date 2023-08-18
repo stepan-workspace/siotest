@@ -5,7 +5,11 @@ namespace App\Controller;
 use App\Entity\Product;
 use App\Form\ProductFormType;
 use App\Repository\ProductRepository;
+use App\Service\Error\ExceptionError;
+use App\Service\Error\FormError;
+use App\Service\Error\HandlerErrorInterface;
 use Doctrine\ORM\EntityManagerInterface;
+use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +21,8 @@ class ProductController extends AbstractController
 {
     public function __construct(
         private readonly EntityManagerInterface $entityManager,
-        private readonly ProductRepository      $productRepository
+        private readonly ProductRepository      $productRepository,
+        private readonly HandlerErrorInterface  $handlerError
     )
     {
     }
@@ -42,41 +47,59 @@ class ProductController extends AbstractController
             return $this->json($form->getData());
         }
 
-        $errors = $form->getConfig()->getType()->getInnerType()->processFormErrors($form);
-        return $this->json(['errors' => $errors], Response::HTTP_BAD_REQUEST);
+        return $this->json(
+            $this->handlerError->serve(FormError::class, $form)->toArray(),
+            Response::HTTP_BAD_REQUEST
+        );
     }
 
     #[Route('/products/{id}', name: 'products_edit', methods: ['PUT'])]
     public function editProduct(Request $request, int $id): JsonResponse
     {
-        $product = $this->productRepository->find($id);
-        if (!$product) {
-            return $this->json('Product not found by id = ' . $id, Response::HTTP_BAD_REQUEST);
-        }
+        try {
+            $product = $this->productRepository->find($id);
+            if (!$product) {
+                throw new Exception('Product not fount by Id: ' . $id);
+            }
 
-        $data = json_decode($request->getContent(), true);
-        $form = $this->createForm(ProductFormType::class, $product);
-        $form->submit($data);
+            $data = json_decode($request->getContent(), true);
+            $form = $this->createForm(ProductFormType::class, $product);
+            $form->submit($data);
 
-        if ($form->isValid()) {
+            if (!$form->isValid()) {
+                return $this->json(
+                    $this->handlerError->serve(FormError::class, $form)->toArray(),
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+
             $this->entityManager->persist($form->getData());
             $this->entityManager->flush();
             return $this->json($form->getData());
+        }  catch (Exception $e) {
+            return $this->json(
+                $this->handlerError->serve(ExceptionError::class, $e)->toArray(),
+                Response::HTTP_BAD_REQUEST
+            );
         }
-
-        $errors = $form->getConfig()->getType()->getInnerType()->processFormErrors($form);
-        return $this->json(['errors' => $errors], Response::HTTP_BAD_REQUEST);
     }
 
     #[Route('/products/{id}', name: 'products_delete', methods: ['DELETE'])]
-    public function deleteProduct(Request $request, int $id): JsonResponse
+    public function deleteProduct(int $id): JsonResponse
     {
-        $product = $this->productRepository->find($id);
-        if (!$product) {
-            return $this->json('Product not found by id = ' . $id, Response::HTTP_BAD_REQUEST);
+        try {
+            $product = $this->productRepository->find($id);
+            if (!$product) {
+                throw new Exception('Product not fount by Id: ' . $id);
+            }
+            $this->entityManager->remove($product);
+            $this->entityManager->flush();
+            return $this->json('Product removed by id = ' . $id);
+        } catch (Exception $e) {
+            return $this->json(
+                $this->handlerError->serve(ExceptionError::class, $e)->toArray(),
+                Response::HTTP_BAD_REQUEST
+            );
         }
-        $this->entityManager->remove($product);
-        $this->entityManager->flush();
-        return $this->json('Product removed by id = ' . $id);
     }
 }

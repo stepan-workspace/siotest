@@ -21,7 +21,7 @@ class CountryRepository extends ServiceEntityRepository
         parent::__construct($registry, Country::class);
     }
 
-    public function getCodeOfAllCountries()
+    public function getCodeOfAllCountries(): iterable
     {
         $data = $this->createQueryBuilder('c')
             ->select('DISTINCT c.code')
