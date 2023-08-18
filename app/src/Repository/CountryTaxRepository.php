@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\CountryTax;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\Persistence\ManagerRegistry;
 
 /**
@@ -21,28 +22,14 @@ class CountryTaxRepository extends ServiceEntityRepository
         parent::__construct($registry, CountryTax::class);
     }
 
-//    /**
-//     * @return CountryTax[] Returns an array of CountryTax objects
-//     */
-//    public function findByExampleField($value): array
-//    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->orderBy('c.id', 'ASC')
-//            ->setMaxResults(10)
-//            ->getQuery()
-//            ->getResult()
-//        ;
-//    }
-
-//    public function findOneBySomeField($value): ?CountryTax
-//    {
-//        return $this->createQueryBuilder('c')
-//            ->andWhere('c.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+    public function getTaxesByCountryCode($code): iterable
+    {
+        return $this->createQueryBuilder('ct')
+            ->select('ct.id, c.id AS country, c.code, ct.value, ct.rule')
+            ->innerJoin('App\Entity\Country', 'c', Join::WITH, 'ct.country = c.id')
+            ->where('c.code = :code')
+            ->setParameter('code', $code)
+            ->getQuery()
+            ->getResult();
+    }
 }
