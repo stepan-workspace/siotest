@@ -5,12 +5,11 @@ namespace App\Form;
 use App\Entity\Product;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
-use Symfony\Component\Form\FormInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class ProductFormType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    public function buildForm(FormBuilderInterface $builder, iterable $options): void
     {
         $builder
             ->add('name')
@@ -23,14 +22,5 @@ class ProductFormType extends AbstractType
         $resolver->setDefaults([
             'data_class' => Product::class,
         ]);
-    }
-
-    public function processFormErrors(FormInterface $form)
-    {
-        $errors = [];
-        foreach ($form->getErrors(true, true) as $error) {
-            $errors[$error->getOrigin()->getName()] = $error->getMessage();
-        }
-        return $errors;
     }
 }

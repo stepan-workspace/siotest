@@ -19,26 +19,20 @@ class PaymentFormType extends AbstractType
     {
     }
 
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    public function buildForm(FormBuilderInterface $builder, iterable $options): void
     {
         $builder
             ->add('product', IntegerType::class, [
                 'constraints' => [
                     new Assert\NotBlank(),
-                    new Assert\Regex([
-                        'pattern' => '/^\d+$/',
-                    ]),
-                    new Assert\Range([
-                        'min' => 1,
-                    ]),
+                    new Assert\Regex(['pattern' => '/^\d+$/']),
+                    new Assert\Range(['min' => 1]),
                 ]
             ])
             ->add('taxNumber', TextType::class, [
                 'constraints' => [
                     new Assert\NotBlank(),
-                    new Assert\Regex([
-                        'pattern' => '/^[a-z]{2}[a-z0-9]+$/i',
-                    ]),
+                    new Assert\Regex(['pattern' => '/^[a-z]{2}[a-z0-9]+$/i']),
                     new TaxNumberConstraint([
                         'countryCodeAsArray' => $this->countryRepository->getCodeOfAllCountries()
                     ])
@@ -47,25 +41,21 @@ class PaymentFormType extends AbstractType
             ->add('couponCode', TextType::class, [
                 'required' => false,
                 'constraints' => [
-                    new Assert\Regex([
-                        'pattern' => '/^[D|P]\d+$/',
-                    ]),
+                    new Assert\Regex(['pattern' => '/^[D|P]\d+$/']),
                 ]
             ])
             ->add('paymentProcessor', TextType::class, [
                 'constraints' => [
                     new Assert\NotBlank(),
-                    new Assert\Regex([
-                        'pattern' => '/^[a-z0-9]+$/i',
-                    ]),
+                    new Assert\Regex(['pattern' => '/^[a-z0-9]+$/i']),
                 ]
             ]);
     }
 
-    public function processFormErrors(FormInterface $form)
+    public function processFormErrors(FormInterface $form): array
     {
         $errors = [];
-        foreach ($form->getErrors(true, true) as $error) {
+        foreach ($form->getErrors(true) as $error) {
             $errors[$error->getOrigin()->getName()] = $error->getMessage();
         }
         return $errors;

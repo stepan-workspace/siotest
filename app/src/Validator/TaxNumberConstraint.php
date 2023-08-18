@@ -8,7 +8,7 @@ class TaxNumberConstraint extends Constraint
 {
     public string $message = 'This value: {{ value }} is not valid.';
 
-    public array $countryCodeAsArray = [];
+    public iterable $countryCodeAsArray = [];
 
     public string $patternCriteria = "";
 }
