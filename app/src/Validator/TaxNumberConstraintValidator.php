@@ -28,17 +28,17 @@ class TaxNumberConstraintValidator extends ConstraintValidator
 
     private function isValid(mixed $value): bool
     {
-        $list = match(true) {
+        $list = match (true) {
             !empty($this->constraint->countryCodeAsArray) => join('|', $this->constraint->countryCodeAsArray),
             default => ""
         };
 
-        $pattern = match(true) {
+        $pattern = match (true) {
             !empty($this->constraint->patternCriteria) => $this->constraint->patternCriteria,
             default => "/^({$list})[a-z0-9]+$/i"
         };
 
-        return (bool)match(true) {
+        return (bool)match (true) {
             !empty($list) => preg_match($pattern, $value),
             default => true
         };
