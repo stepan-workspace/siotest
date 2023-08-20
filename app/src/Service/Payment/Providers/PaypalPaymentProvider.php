@@ -4,27 +4,14 @@ namespace App\Service\Payment\Providers;
 
 use Exception;
 
-class PaypalPaymentProvider implements PaymentProviderInterface
+class PaypalPaymentProvider extends PaymentProviderAbstract implements PaymentProviderInterface
 {
-    private string $error;
-
     /**
      * @throws Exception
      */
-    public function processPayment(float $amount): bool
+    public function process(float $amount): bool
     {
-        try {
-            $paypal = new \PaypalPaymentProcessor();
-            $paypal->pay((int)$amount);
-            return true;
-        } catch (Exception $e) {
-            $this->error = $e->getMessage();
-            return false;
-        }
-    }
-
-    public function getError(): string
-    {
-        return $this->error;
+        (new \PaypalPaymentProcessor())->pay((int)$amount);
+        return true;
     }
 }

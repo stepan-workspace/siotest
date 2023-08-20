@@ -4,11 +4,13 @@ namespace App\Service\Calculator;
 
 interface PriceBuilderInterface
 {
-    public function setProductId(int $productId): static;
+    public function setCalculator(CalculatorInterface $calculator): static;
 
-    public function setTaxNumber(string $taxNumber): static;
+    public function setPrice(float $price): static;
 
-    public function setCouponCode(string $couponCode): static;
+    public function setDiscount(float $discount): static;
 
-    public function getPrice(): float;
+    public function setTax(float $tax): static;
+
+    public function build(): float;
 }

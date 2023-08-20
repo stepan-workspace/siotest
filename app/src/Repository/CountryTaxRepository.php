@@ -32,4 +32,18 @@ class CountryTaxRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    public function getTaxCountryByTaxNumber($taxNumber, $pattern = '/^(?P<code>[a-z]{2})/i'): int
+    {
+        if (!preg_match($pattern, $taxNumber, $matches)) {
+            return 0;
+        }
+        $taxes = $this->getTaxesByCountryCode($matches['code']);
+        foreach ($taxes as $tax) {
+            if (preg_match($tax['rule'], $taxNumber)) {
+                return (int)$tax['value'];
+            }
+        }
+        return 0;
+    }
 }

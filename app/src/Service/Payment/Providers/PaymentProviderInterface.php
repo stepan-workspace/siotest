@@ -6,5 +6,5 @@ interface PaymentProviderInterface
 {
     public function processPayment(float $amount): bool;
 
-    public function getError(): string;
+    public function getErrorMessage(): string;
 }

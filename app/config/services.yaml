@@ -31,8 +31,8 @@ services:
         arguments:
             $classLoader: '@App\Service\Payment\Loader\PaymentLoader'
 
-    App\Service\Payment\Providers\PaymentBuilder:
+    App\Service\Payment\PaymentList:
         arguments:
-            $payments:
+            $list:
                 paypal: '@App\Service\Payment\Providers\PaypalPaymentProvider'
                 stripe: '@App\Service\Payment\Providers\StripePaymentProvider'
