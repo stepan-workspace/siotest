@@ -4,18 +4,18 @@ namespace App\Service\Error;
 
 class HandlerError implements HandlerErrorInterface
 {
-    private array $result = [];
+    private ?ArrayErrorInterface $arrayError;
 
-    public function serve(string $class, object $object): static
+    public function serve(string $class, object $source): static
     {
-        if (class_exists($class) && in_array(ToArrayErrorInterface::class, class_implements($class))) {
-            $this->result = (new $class())->setObject($object)->toArray();
+        if (class_exists($class) && in_array(ArrayErrorInterface::class, class_implements($class))) {
+            $this->arrayError = new $class($source);
         }
         return $this;
     }
 
     public function toArray(): array
     {
-        return $this->result;
+        return $this->arrayError->toArray();
     }
 }

@@ -13,8 +13,14 @@
 
 ```bash
     docker exec -it sio_php bash -c 'composer install'
-    docker exec -it sio_php bash -c 'symfony console doctrine:database:create'
-    docker exec -it sio_php bash -c 'symfony console doctrine:migrations:migrate'
+    docker exec -it sio_php bash -c 'symfony console siotest:install:app'
+```
+
+## Other:
+
+Drop database
+```bash
+docker exec -it sio_php bash -c 'symfony console doctrine:database:drop --force'
 ```
 
 ## Dependencies:
