@@ -41,7 +41,7 @@ class PriceBuilderDirector implements PriceBuilderDirectorInterface
         )?->getPrice();
 
         if (is_null($price)) {
-            throw new Exception('Product no found by Id: ' . $this->register->getParameter('productId'));
+            throw new Exception('Product not found by Id: ' . $this->register->getParameter('productId'));
         }
 
         $discount = $this->discountProvider->getDiscount(
@@ -49,9 +49,16 @@ class PriceBuilderDirector implements PriceBuilderDirectorInterface
             $price
         );
 
-        $tax = $this->countryTaxRepository->getTaxCountryByTaxNumber(
-            $this->register->getParameter('taxNumber')
-        );
+        $tax = match (true) {
+            $this->countryTaxRepository->hasOneCountryByTaxNumber(
+                $this->register->getParameter('taxNumber')
+            ) => $this->countryTaxRepository->getTaxCountryByTaxNumber(
+                $this->register->getParameter('taxNumber')
+            ),
+            default => throw new Exception(
+                'Tax not found by Tax number: ' . $this->register->getParameter('taxNumber')
+            )
+        };
 
         return $this->builder
             ->setPrice($price)
