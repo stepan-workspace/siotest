@@ -2,18 +2,22 @@
 
 namespace App\Service\Error;
 
-class ExceptionError implements ToArrayErrorInterface
+class ExceptionError implements ArrayErrorInterface
 {
-    private \Exception $exception;
-
-    public function setObject($object): static
+    public function __construct(
+        private ?object $source = null
+    )
     {
-        $this->exception = $object;
+    }
+
+    public function setSource($source): static
+    {
+        $this->source = $source;
         return $this;
     }
 
     public function toArray(): array
     {
-        return ['errors' => ['exception' => $this->exception->getMessage()]];
+        return ['errors' => ['exception' => $this->source->getMessage()]];
     }
 }

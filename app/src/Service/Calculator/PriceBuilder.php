@@ -4,42 +4,45 @@ namespace App\Service\Calculator;
 
 class PriceBuilder implements PriceBuilderInterface
 {
-    private int $productId;
-
-    private string $taxNumber;
-
-    private ?string $couponCode;
-
     public function __construct(
-        private readonly CalculatorInterface $calculator
+        private CalculatorInterface $calculator,
+        private float               $price = 0,
+        private float               $discount = 0,
+        private float               $tax = 0
     )
     {
     }
 
-    public function setProductId(int $productId): static
+    public function setCalculator(CalculatorInterface $calculator): static
     {
-        $this->productId = $productId;
+        $this->calculator = $calculator;
         return $this;
     }
 
-    public function setTaxNumber(string $taxNumber): static
+    public function setPrice(float $price): static
     {
-        $this->taxNumber = $taxNumber;
+        $this->price = $price;
         return $this;
     }
 
-    public function setCouponCode(string $couponCode): static
+    public function setDiscount(float $discount): static
     {
-        $this->couponCode = $couponCode;
+        $this->discount = $discount;
         return $this;
     }
 
-    public function getPrice(): float
+    public function setTax(float $tax): static
+    {
+        $this->tax = $tax;
+        return $this;
+    }
+
+    public function build(): float
     {
         return $this->calculator->calculate(
-            $this->productId,
-            $this->taxNumber,
-            $this->couponCode
+            $this->price,
+            $this->discount,
+            $this->tax,
         );
     }
 }

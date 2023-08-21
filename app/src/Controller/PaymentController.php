@@ -4,11 +4,12 @@ namespace App\Controller;
 
 use App\Form\PaymentFormType;
 use App\Repository\ProductRepository;
-use App\Service\Calculator\PriceBuilderInterface;
+use App\Service\Calculator\PriceBuilderDirectorInterface;
 use App\Service\Error\ExceptionError;
 use App\Service\Error\FormError;
 use App\Service\Error\HandlerErrorInterface;
-use App\Service\Payment\Providers\PaymentBuilderInterface;
+use App\Service\Payment\PaymentBuilderDirectorInterface;
+use App\Service\Resolver\ResolverArrayInterface;
 use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -21,11 +22,12 @@ use Symfony\Component\Routing\Annotation\Route;
 class PaymentController extends AbstractController
 {
     public function __construct(
-        private readonly PriceBuilderInterface   $priceBuilder,
-        private readonly HandlerErrorInterface   $handlerError,
-        private readonly ProductRepository       $productRepository,
-        private readonly HttpKernelInterface     $httpKernel,
-        private readonly PaymentBuilderInterface $paymentBuilder
+        private readonly HandlerErrorInterface           $handlerError,
+        private readonly ProductRepository               $productRepository,
+        private readonly HttpKernelInterface             $httpKernel,
+        private readonly ResolverArrayInterface          $resolverArray,
+        private readonly PriceBuilderDirectorInterface   $priceBuilderDirector,
+        private readonly PaymentBuilderDirectorInterface $paymentBuilderDirector
     )
     {
     }
@@ -45,11 +47,13 @@ class PaymentController extends AbstractController
                 );
             }
 
-            $amount = $this->priceBuilder
-                ->setProductId((int)$form->get('product')->getData())
-                ->setTaxNumber((string)$form->get('taxNumber')->getData())
-                ->setCouponCode((string)$form->get('couponCode')->getData())
-                ->getPrice();
+            $this->resolverArray
+                ->addConform('productId', 'product')
+                ->addConform('taxNumber')
+                ->addConform('couponCode');
+
+            $amount = $this->priceBuilderDirector
+                ->buildComplete($form->getData(), $this->resolverArray);
 
             $product = $this->productRepository->find($form->get('product')->getData());
 
@@ -78,30 +82,22 @@ class PaymentController extends AbstractController
             $response = $this->httpKernel->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
 
             $requestContent = json_decode($request->getContent(), true);
-            $paymentProcessor = $requestContent['paymentProcessor'];
-
             $responseContent = json_decode($response->getContent(), true);
-            $amount = $responseContent['amount'];
 
-            $provider = $this->paymentBuilder
-                ->setPaymentKey($paymentProcessor)
-                ->createProvider();
-
-            $data = $responseContent;
-            if (!$provider?->processPayment($amount)) {
-                $data['pay'] = 'fail';
-                $data['error'] = $provider?->getError() ?? '';
-                return $this->json(
-                    ['errors' => ['pay' => $data]],
-                    Response::HTTP_BAD_REQUEST
-                );
+            if ($response->getStatusCode() !== Response::HTTP_OK) {
+                return $this->json($responseContent, Response::HTTP_BAD_REQUEST);
             }
 
-            $data['pay'] = 'success';
-            return $this->json($data);
+            $paymentProcessor = $requestContent['paymentProcessor'];
+            $amount = $responseContent['amount'];
+
+            $this->paymentBuilderDirector
+                ->buildComplete($paymentProcessor, $amount);
+
+            return $this->json($responseContent);
         } catch (Exception $e) {
             return $this->json(
-                $this->handlerError->serve(ExceptionError::class, $e)->toArray(),
+                ($responseContent ?? []) + $this->handlerError->serve(ExceptionError::class, $e)->toArray(),
                 Response::HTTP_BAD_REQUEST
             );
         }

@@ -51,13 +51,4 @@ class PaymentFormType extends AbstractType
                 ]
             ]);
     }
-
-    public function processFormErrors(FormInterface $form): array
-    {
-        $errors = [];
-        foreach ($form->getErrors(true) as $error) {
-            $errors[$error->getOrigin()->getName()] = $error->getMessage();
-        }
-        return $errors;
-    }
 }

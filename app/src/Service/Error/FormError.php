@@ -4,20 +4,24 @@ namespace App\Service\Error;
 
 use Symfony\Component\Form\FormInterface;
 
-class FormError implements ToArrayErrorInterface
+class FormError implements ArrayErrorInterface
 {
-
-    private FormInterface $form;
-    public function setObject($object): static
+    public function __construct(
+        private ?FormInterface $source = null
+    )
     {
-        $this->form = $object;
+    }
+
+    public function setSource($source): static
+    {
+        $this->source = $source;
         return $this;
     }
 
     public function toArray(): array
     {
         $errors = [];
-        foreach ($this->form->getErrors(true) as $error) {
+        foreach ($this->source->getErrors(true) as $error) {
             $errors[$error->getOrigin()->getName()] = $error->getMessage();
         }
         return ['errors' => $errors];
