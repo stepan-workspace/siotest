@@ -18,6 +18,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * A controller used to calculate the cost of an
+ * item and pay for that cost. The cost of a product
+ * consists of price, discount and tax.
+ */
 #[Route('/api', name: 'api_')]
 class PaymentController extends AbstractController
 {
@@ -32,6 +37,22 @@ class PaymentController extends AbstractController
     {
     }
 
+    /**
+     * REST API method for calculating the cost of a product.
+     * Request example (POST):
+     *  {
+     *      "product": "1",
+     *      "taxNumber": "DE123456789",
+     *      "couponCode": "D15",
+     *      "paymentProcessor": "paypal"
+     *  }
+     * In the event of a hurry, the answer is 200,
+     * failure, the answer is 400
+     * @url /api/calculation
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     #[Route('/calculation', name: 'payment_calculation', methods: ['POST'])]
     public function getCalculationPrice(Request $request): JsonResponse
     {
@@ -40,6 +61,7 @@ class PaymentController extends AbstractController
             $form = $this->createForm(PaymentFormType::class);
             $form->submit($data);
 
+            // Request validation form is used
             if (!$form->isValid()) {
                 return $this->json(
                     $this->handlerError->serve(FormError::class, $form)->toArray(),
@@ -47,11 +69,13 @@ class PaymentController extends AbstractController
                 );
             }
 
+            // Data matching for the calculator
             $this->resolverArray
                 ->addConform('productId', 'product')
                 ->addConform('taxNumber')
                 ->addConform('couponCode');
 
+            // final cost of the product
             $amount = $this->priceBuilderDirector
                 ->buildComplete($form->getData(), $this->resolverArray);
 
@@ -73,10 +97,28 @@ class PaymentController extends AbstractController
         }
     }
 
+    /**
+     * REST API method for paying for the cost of goods. This
+     * method uses the REST API method to calculate the cost
+     * Request example (POST):
+     *   {
+     *       "product": "1",
+     *       "taxNumber": "DE123456789",
+     *       "couponCode": "D15",
+     *       "paymentProcessor": "paypal"
+     *   }
+     *  In the event of a hurry, the answer is 200,
+     *  failure, the answer is 400
+     * @url /api/pay
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     #[Route('/pay', name: 'payment_pay', methods: ['POST'])]
     public function getMakePayment(Request $request): JsonResponse
     {
         try {
+            // API request that will return the final cost of the product
             $subRequest = Request::create(uri: '/api/calculation', method: 'POST', content: $request->getContent());
             $subRequest->headers->set('Content-Type', 'application/json');
             $response = $this->httpKernel->handle($subRequest, HttpKernelInterface::SUB_REQUEST);
@@ -84,6 +126,7 @@ class PaymentController extends AbstractController
             $requestContent = json_decode($request->getContent(), true);
             $responseContent = json_decode($response->getContent(), true);
 
+            // If it fails, throw an exception with code 400
             if ($response->getStatusCode() !== Response::HTTP_OK) {
                 return $this->json($responseContent, Response::HTTP_BAD_REQUEST);
             }
@@ -91,6 +134,7 @@ class PaymentController extends AbstractController
             $paymentProcessor = $requestContent['paymentProcessor'];
             $amount = $responseContent['amount'];
 
+            // We pay for the product
             $this->paymentBuilderDirector
                 ->buildComplete($paymentProcessor, $amount);
 

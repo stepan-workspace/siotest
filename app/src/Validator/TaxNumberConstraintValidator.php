@@ -5,6 +5,10 @@ namespace App\Validator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\ConstraintValidator;
 
+/**
+ * Validator class for checking country tax number.
+ * Used in the form during data validation
+ */
 class TaxNumberConstraintValidator extends ConstraintValidator
 {
     public function __construct(
