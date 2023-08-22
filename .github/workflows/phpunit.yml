@@ -19,7 +19,7 @@ jobs:
         run: |
           PR_BRANCH=$GITHUB_REF
           echo "pull_request branch: $PR_BRANCH"
-          if [[ "$PR_BRANCH" == "fix-14" ||  "$PR_BRANCH" == "master" ||  "$PR_BRANCH" == "develop" ]]; then
+          if [[ "$PR_BRANCH" == *"/fix-14" ||  "$PR_BRANCH" == *"/master" ||  "$PR_BRANCH" == *"/develop" ]]; then
             echo "Excluded branch, skipping the workflow."
             exit 0
           fi
