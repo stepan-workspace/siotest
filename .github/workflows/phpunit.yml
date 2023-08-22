@@ -4,13 +4,10 @@ on:
   pull_request:
     branches:
       - '*'
-  push:
-    branches:
-      - master
-      - develop
-      - fix-14
     types:
-      - push
+      - opened
+      - synchronize
+      - reopened
 
 jobs:
   phpunit:
