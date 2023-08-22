@@ -9,6 +9,8 @@ on:
       - master
       - develop
       - fix-14
+    types:
+      - push
 
 jobs:
   phpunit:
