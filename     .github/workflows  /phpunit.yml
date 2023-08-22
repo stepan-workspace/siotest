@@ -1,11 +1,6 @@
 name: PHPUnit Tests
 
-on:
-  push:
-    branches:
-      - master
-      - develop
-      - fix-14
+on: push
 
 jobs:
   phpunit:
