@@ -37,3 +37,4 @@ jobs:
 
       - name: Run tests
         run: docker exec -t sio_php bash -c 'php vendor/bin/phpunit'
+
