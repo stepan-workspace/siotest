@@ -1,0 +1,37 @@
+name: PHPUnit Tests
+
+on:
+  push:
+    branches:
+      - master
+      - develop
+
+jobs:
+  phpunit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Build Docker
+        run: |
+          cp docker/.env-dist docker/.env
+          make build -C docker
+
+      - name: Docker up
+        run: |
+          make up -C docker
+          sleep 30
+
+      - name: Install Composer
+        run: docker exec -t sio_php bash -c 'composer install'
+
+
+      - name: Create test environment
+        run: |
+          docker exec -t sio_db bash -c '${{ secrets.MYSQL_CONNECTION_STRING }} -e "SHOW DATABASES;"'
+          docker exec -t sio_php bash -c 'composer run-script create-test-environment'
+
+      - name: Run tests
+        run: docker exec -t sio_php bash -c 'php vendor/bin/phpunit'

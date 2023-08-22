@@ -16,6 +16,10 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
+/**
+ * A controller that allows you to add,
+ * edit, and delete products.
+ */
 #[Route('/api', name: 'api_')]
 class ProductController extends AbstractController
 {
@@ -27,6 +31,12 @@ class ProductController extends AbstractController
     {
     }
 
+    /**
+     * Listings of all products (GET)
+     * @url /api/products
+     *
+     * @return JsonResponse
+     */
     #[Route('/products', name: 'products_list', methods: ['GET'])]
     public function getProducts(): JsonResponse
     {
@@ -34,6 +44,17 @@ class ProductController extends AbstractController
         return $this->json($data);
     }
 
+    /**
+     * Adding a product (POST). Request example:
+     *  {
+     *      "name": "Product one",
+     *      "price": "123"
+     *  }
+     * @url /api/products
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
     #[Route('/products', name: 'products_add', methods: ['POST'])]
     public function addProduct(Request $request): JsonResponse
     {
@@ -53,6 +74,18 @@ class ProductController extends AbstractController
         );
     }
 
+    /**
+     * Product editing (PUT). Request example:
+     *  {
+     *      "name": "edit product one",
+     *      "price": "234"
+     *  }
+     * @url /api/products/1
+     *
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
     #[Route('/products/{id}', name: 'products_edit', methods: ['PUT'])]
     public function editProduct(Request $request, int $id): JsonResponse
     {
@@ -84,6 +117,13 @@ class ProductController extends AbstractController
         }
     }
 
+    /**
+     * Removing a product (DELETE). Request example:
+     * @url /api/products/1
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
     #[Route('/products/{id}', name: 'products_delete', methods: ['DELETE'])]
     public function deleteProduct(int $id): JsonResponse
     {
