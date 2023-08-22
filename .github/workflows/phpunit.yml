@@ -2,7 +2,8 @@ name: PHPUnit Tests
 
 on:
   pull_request:
-
+    branches:
+      - '*'
   push:
     branches:
       - master
@@ -14,6 +15,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check pull_request Branch Name
+        run: |
+          PR_BRANCH=$GITHUB_REF
+          echo "pull_request branch: $PR_BRANCH"
+          if [[ "$PR_BRANCH" == "fix-14" ||  "$PR_BRANCH" == "master" ||  "$PR_BRANCH" == "develop" ]]; then
+            echo "Excluded branch, skipping the workflow."
+            exit 0
+          fi
+          echo "Not an excluded branch, continuing with the workflow."
+
       - name: Checkout Repository
         uses: actions/checkout@v3
 
