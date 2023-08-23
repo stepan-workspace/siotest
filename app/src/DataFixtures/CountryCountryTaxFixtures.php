@@ -41,7 +41,7 @@ class CountryCountryTaxFixtures extends Fixture
         $countryTax = new CountryTax();
         $countryTax->setCountry($country);
         $countryTax->setValue(20);
-        $countryTax->setRule('/^(fr)\[A-Za-z]{2}\d{9}$/i');
+        $countryTax->setRule('/^(fr)[A-Za-z]{2}\d{9}$/i');
         $manager->persist($countryTax);
 
         $country = new Country();
