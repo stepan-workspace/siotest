@@ -30,6 +30,7 @@ class PaymentFormType extends AbstractType
                 ]
             ])
             ->add('taxNumber', TextType::class, [
+                'empty_data' => '',
                 'constraints' => [
                     new Assert\NotBlank(),
                     new Assert\Regex(['pattern' => '/^[a-z]{2}[a-z0-9]+$/i']),
@@ -40,6 +41,7 @@ class PaymentFormType extends AbstractType
             ])
             ->add('couponCode', TextType::class, [
                 'required' => false,
+                'empty_data' => '',
                 'constraints' => [
                     new Assert\Regex(['pattern' => '/^[D|P]\d+$/']),
                 ]
