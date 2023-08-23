@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
  * content of response REST API of product cost calculation
  * method
  */
-final class PaymentControllerWebTest extends WebTestCase
+final class PaymentControllerCalculationWebTest extends WebTestCase
 {
 
     use ProductDataTrait;
@@ -80,16 +80,15 @@ final class PaymentControllerWebTest extends WebTestCase
         }
         $responseContent = json_decode($responseJson, true);
         $this->assertArrayHasKey('errors', $responseContent);
-        $this->assertArrayHasKey('errors', ['errors' => 'errors']);
     }
 
     /**
      * The test is designed to check the response to banned or
      * non-existent url addresses. Response status failed.
      *
-     * @dataProvider getDataToGetCalculationPriceForbiddenStatusBAD
+     * @dataProvider getDataToGetControllerForbiddenStatusBAD
      */
-    public function testGetCalculationPriceForbiddenStatusBAD($method): void
+    public function testGetControllerForbiddenStatusBAD($method): void
     {
         $this->client->request(method: $method, uri: '/api/calculation');
         $this->assertEquals(Response::HTTP_BAD_REQUEST, $this->client->getResponse()->getStatusCode());
@@ -115,7 +114,9 @@ final class PaymentControllerWebTest extends WebTestCase
             'product' => '1',
             'taxNumber' => 'DE123456789',
             'paymentProcessor' => 'paypal'
-        ], [
+        ]];
+
+        yield [[
             'product' => '1',
             'taxNumber' => 'DE123456789',
             'couponCode' => '',
@@ -172,7 +173,7 @@ final class PaymentControllerWebTest extends WebTestCase
         }
     }
 
-    private function getDataToGetCalculationPriceForbiddenStatusBAD(): Generator
+    private function getDataToGetControllerForbiddenStatusBAD(): Generator
     {
         yield ['GET', 'POST', 'PUT', 'DELETE'];
     }
