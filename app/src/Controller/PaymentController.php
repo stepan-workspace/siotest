@@ -107,8 +107,8 @@ class PaymentController extends AbstractController
      *       "couponCode": "D15",
      *       "paymentProcessor": "paypal"
      *   }
-     *  In the event of a hurry, the answer is 200,
-     *  failure, the answer is 400
+     * In the event of a hurry, the answer is 200,
+     * failure, the answer is 400
      * @url /api/pay
      *
      * @param Request $request
@@ -145,5 +145,22 @@ class PaymentController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
+    }
+
+    /**
+     * REST API method that closes incoming requests for
+     * unresolved routes and sends an error message
+     * and a 400 response code
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    #[Route('/{any}', name: 'payment_catch_all', methods: ['GET', 'PUT', 'DELETE'])]
+    public function catchAll(Request $request): JsonResponse
+    {
+        $response = [
+            'errors' => ['forbidden' => 'This API endpoint does not exist or is not allowed.'],
+        ];
+        return $this->json($response, Response::HTTP_BAD_REQUEST);
     }
 }
